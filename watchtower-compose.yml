@@ -1,0 +1,27 @@
+# --------------------------------------------------------------------------
+# Watchtower is awesome. It allows automatically updating Docker containers,
+# even itself. It's configured to run once daily at 3AM here.
+# --------------------------------------------------------------------------
+
+services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    environment:
+      TZ: America/New_York
+      WATCHTOWER_CLEANUP: true
+      WATCHTOWER_INCLUDE_STOPPED: true  # update stopped containers
+      WATCHTOWER_REVIVE_STOPPED: false  # but don't start them after
+      WATCHTOWER_SCHEDULE: 0 0 3 * * *  # daily at 3:00:00 AM
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: ${GMAIL}
+      WATCHTOWER_NOTIFICATION_EMAIL_TO: ${GMAIL}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER: smtp.gmail.com
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: 587
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: ${GMAIL}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: ${GMAIL_PASSWORD} # https://myaccount.google.com/apppasswords
+      WATCHTOWER_NOTIFICATION_EMAIL_DELAY: 30
+      WATCHTOWER_NOTIFICATIONS: email
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: synobridge
+    restart: unless-stopped

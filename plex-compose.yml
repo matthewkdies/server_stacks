@@ -1,0 +1,39 @@
+# ---------------------------------------------------------------------------------
+# "Plex organizes video, music and photos from personal media libraries and streams
+# them to smart TVs, streaming boxes and mobile devices. 
+# 
+# Notes:
+#  - I have the Plex Pass, opening me up to a wide range of "pro" features
+#    - One of these features: hardware transcoding!
+#  - I use the RAM to do transcoding, since RAM is cheap and HDDs are *not*
+#  - Runs on host network: DSM reserves the DLNA ports Plex requires for DLNA
+# ---------------------------------------------------------------------------------
+
+services:
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - UMASK=022
+      - VERSION=latest
+      - PLEX_CLAIM=${PLEX_CLAIM_TOKEN}  # retrieved from Plex to verify the Plex Pass
+    healthcheck:
+      test: curl --connect-timeout 15 --silent --show-error --fail http://localhost:32400/identity
+      interval: 1m00s
+      timeout: 15s
+      retries: 3
+      start_period: 1m00s
+    volumes:
+      - /volume1/docker/plex:/config
+      - /volume2/data/media:/data/media
+      - /volume3/data3/media:/data3/media
+      - /dev/shm:/transcode  # use the RAM for transcoding, to save the HDDs from wear and tear
+    devices:
+      - /dev/dri:/dev/dri  # enables hardware transcoding for efficiency
+    security_opt:
+      - no-new-privileges:true
+    restart: always

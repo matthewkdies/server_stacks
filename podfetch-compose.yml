@@ -1,0 +1,25 @@
+# --------------------------------------------------------------------------
+# Podfetch is a self-hosted podcast manager. 
+# It is a web app that lets you download podcasts and listen to them online.
+# --------------------------------------------------------------------------
+
+services:
+  podfetch:
+    image: samuel19982/podfetch:latest
+    container_name: podfetch
+    user: ${UID}:${GID}
+    ports:
+      - 8081:8000
+    volumes:
+      - /volume2/data/media/podcasts:/app/podcasts
+      - /volume1/docker/podfetch/db:/app/db
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - POLLING_INTERVAL=60
+      - SERVER_URL=http://localhost:8000
+      - BASIC_AUTH=true
+      - USERNAME=matthewkdies
+      - PASSWORD=${PODFETCH_PASSWORD}
+    network_mode: synobridge
+    restart: unless-stopped

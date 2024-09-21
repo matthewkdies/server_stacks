@@ -1,0 +1,320 @@
+# ----------------------------------------------------------------------------------------
+# The below containers all serve to supplement and automate a lot of Plex management.
+# For this reason, the Plex compose is kept separate, so that changes to these services
+# won't affect the availability of Plex itself. 
+# 
+# The current capabilities of this stack:
+#   1. Handling Plex users' content requests (overseerr)
+#   2. Creation of a VPN container that uses my Mullvad account (gluetun)
+#   3. Usage of VPN container to torrent **LEGAL CONTENT ONLY!** (qbittorrent)
+#   4. Automated management of handling connections to torrent clients (prowlarr)
+#       - Proxy container for bypassing some Cloudflare protections (flaresolverr)
+#   5. Automated media importing, renaming, management, and upgrading for
+#       - TV shows (sonarr)
+#       - movies (radarr)
+#       - music (lidarr)
+#   6. Automated fetching of subtitles for media (bazarr)
+#   7. Transcoding of video media to meet custom-set specifications (tdarr)
+#   8. Plex activity monitoring (tautilli)
+# 
+# Unfortunately, I haven't been great at keeping helpful links as I go so far.
+# Those that I remember off the top of my head are listed below:
+#   - https://trash-guides.info/: Helpful guides for configuring media management clients
+#   - https://drfrankenstein.co.uk/: Basically my source of truth for configuring this all
+#   - https://github.com/qdm12/gluetun/discussions/805#discussioncomment-2026642: getting
+#     the VPN working requires setting the `WIREGUARD_ADDRESSES` and
+#     `WIREGUARD_PRIVATE_KEY` variables, here's a comment on how to do so
+# ----------------------------------------------------------------------------------------
+
+services:
+  # tv show monitoring + management
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - UMASK=022
+    # healthcheck:
+    #   test: curl -f http://localhost:8989/api/v3/health?apikey=${SONARR_API_KEY} || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 30s
+    volumes:
+      - /volume1/docker/sonarr:/config
+      - /volume2/data:/data
+      - /volume3/data3:/data3
+    ports:
+      - 8989:8989
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # movie monitoring + management
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - UMASK=022
+    # healthcheck:
+    #   test: curl -f http://localhost:7878/api/v3/health?apikey=${RADARR_API_KEY} || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 30s
+    volumes:
+      - /volume1/docker/radarr:/config
+      - /volume2/data:/data
+      - /volume3/data3:/data3
+    ports:
+      - 7878:7878
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+  
+  # music monitoring + management
+  lidarr:
+    image: linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - UMASK=022
+    # healthcheck:
+    #   test: curl -f http://localhost:8686/api/v1/health?apikey=${LIDARR_API_KEY} || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 30s
+    volumes:
+      - /volume1/docker/lidarr:/config
+      - /volume2/data:/data
+      - /volume3/data3:/data3
+    ports:
+      - 8686:8686
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # torrent client monitoring + management
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - UMASK=022
+    # healthcheck:
+    #   test: curl -f http://localhost:9696/api/v1/health?apikey=${PROWLARR_API_KEY} || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 30s
+    volumes:
+      - /volume1/docker/prowlarr:/config
+    ports:
+      - 9696:9696
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # subtitle monitoring + management
+  bazarr:
+    image: linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - UMASK=022
+    # healthcheck:
+    #   test: curl -f http://localhost:6767/api/system/status?apikey=${BAZARR_API_KEY} || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 30s
+    volumes:
+      - /volume1/docker/bazarr:/config
+      - /volume2/data:/data
+      - /volume3/data3:/data3
+    ports:
+      - 6767:6767
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # content request monitoring + management
+  overseerr:
+    image: linuxserver/overseerr
+    container_name: overseerr
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+    # healthcheck:
+    #   test: curl -f http://localhost:5055/api/v1/status || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 30s
+    volumes:
+      - /volume1/docker/overseerr:/config
+    ports:
+      - 5055:5055
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # transcoding of video files
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    hostname: tdarr
+    security_opt:
+      - no-new-privileges:true
+    network_mode: synobridge
+    # healthcheck:
+    #   test: wget --no-verbose --tries=1 --spider http://localhost:8265/ || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 30s
+    ports:
+      - 8265:8265
+      - 8266:8266
+    environment:
+      - TZ=America/New_York
+      - PUID=${UID}
+      - PGID=${GID}
+      - serverIP=tdarr
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - nodeID=InternalNode
+    volumes:
+      - /volume1/docker/tdarr/server:/app/server
+      - /volume1/docker/tdarr/configs:/app/configs
+      - /volume1/docker/tdarr/logs:/app/logs
+      - /volume2/data/media:/media
+      - /volume3/data3/media:/media3
+      - /volume2/data/transcode:/transcode
+      - /volume3/data3/transcode:/transcode3
+    devices:
+      - /dev/dri:/dev/dri
+    restart: always
+
+  # helps to bypass CLoudflare protection used by many indexers
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - TZ=America/New_York
+    # healthcheck:
+    #   test: curl -f http://localhost:8191 || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 60s
+    ports:
+      - 8191:8191
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # VPN client container
+  gluetun:
+    image: qmcgaw/gluetun:v3
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+      - 8090:8090/tcp # port for qbittorrent
+    volumes:
+      - /volume1/docker/gluetun:/gluetun
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - SERVER_CITIES=${SERVER_CITIES}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+      - TZ=America/New_York
+      - HTTPPROXY=off
+      - SHADOWSOCKS=off
+      - FIREWALL_OUTBOUND_SUBNETS=${FIREWALL_OUTBOUND_SUBNETS}
+      - UPDATER_PERIOD=24h
+    network_mode: synobridge
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # torrenting client
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - WEBUI_PORT=8090
+      - UMASK=022
+      - DOCKER_MODS=ghcr.io/gabe565/linuxserver-mod-vuetorrent  # https://github.com/arafatamim/linuxserver-io-mod-vuetorrent/issues/8
+    # healthcheck:
+    #   test: >
+    #     curl -i --header 'Referer: http://localhost:8090' --data 'username=${QBITTORRENT_USERNAME}&password=${QBITTORRENT_PASSWORD}' http://localhost:8090/api/v2/auth/login || exit 1
+    #   interval: 5m00s
+    #   timeout: 10s
+    #   retries: 2
+    #   start_period: 120s
+    volumes:
+      - /volume1/docker/qbittorrent:/config
+      - /volume2/data/torrents:/data/torrents
+      - /volume3/data3/torrents:/data3/torrents
+    network_mode: service:gluetun # run on the vpn network from above gluetun container
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  # monitoring dashboard
+  tautulli:
+    image: linuxserver/tautulli:latest
+    container_name: tautulli
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=America/New_York
+      - UMASK=022
+    volumes:
+      - /volume1/docker/tautulli:/config
+    ports:
+      - 8181:8181/tcp
+    network_mode: synobridge
+    security_opt:
+      - no-new-privileges:true
+    restart: always

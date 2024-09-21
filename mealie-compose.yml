@@ -1,0 +1,78 @@
+# ----------------------------------------------------------------------------------------
+# Mealie is an intuitive and easy to use recipe management app!
+# It allows easily importing recipes into the app from various web sources and OCR.
+# Furthermore, the recipes can be added to a meal plan and then exported directly
+# to shopping lists, which has become my #1 method for meal planning and grocery shopping.
+# It also has a fairly well-maintained PWA, which makes mobile usage well-integrated.
+# ----------------------------------------------------------------------------------------
+
+services:
+  mealie:
+    # mealie advises against using the latest tag
+    # however, I like new features/bug fixes and I know how to debug
+    image: ghcr.io/mealie-recipes/mealie:latest
+    container_name: mealie
+    hostname: mealie
+    # "Setting an explicit memory limit is recommended ... will improve idle performance"
+    mem_limit: 4g
+    cpu_shares: 1024
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    ports:
+      - 9925:9000
+    # "SQLite is not designed to be used with NAS and can cause data corruption, 
+    # or locked database errors"
+    depends_on:
+      mealie-postgres-db:
+        condition: service_healthy
+    volumes:
+      - /volume1/docker/mealie/mealie-data:/app/data/:rw
+    environment:
+      ALLOW_SIGNUP: false # prevents uninvited signup
+      PUID: ${UID}
+      PGID: ${GID}
+      TZ: America/New_York
+      # web settings
+      MAX_WORKERS: 1
+      WEB_CONCURRENCY: 1
+      BASE_URL: ${MEALIE_BASE_URL}
+      # database settings
+      DB_ENGINE: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_SERVER: mealie-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mealie
+      # email/SMTP settings
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_FROM_NAME: mealie
+      SMTP_AUTH_STRATEGY: TLS
+      SMTP_FROM_EMAIL: ${GMAIL}
+      SMTP_USER: ${GMAIL}
+      SMTP_PASSWORD: ${GMAIL_PASSWORD} # https://myaccount.google.com/apppasswords
+    restart: on-failure:5
+    network_mode: synobridge
+
+  mealie-postgres-db:
+    image: postgres:16
+    container_name: mealie-postgres
+    hostname: mealie-postgres
+    mem_limit: 1g
+    cpu_shares: 768
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "mealie", "-U", "${POSTGRES_USER}"]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    volumes:
+      - /volume1/docker/mealie/mealie-pgdata:/var/lib/postgresql/data:rw
+    environment:
+      POSTGRES_DB: mealie
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: on-failure:5
+    network_mode: synobridge

@@ -1,0 +1,18 @@
+# ----------------------------------------------------------
+# Portainer is a web GUI for container management.
+# This compose file is used in Synology's Container Manager,
+# since Portainer can't be used to edit itself.
+# ----------------------------------------------------------
+
+services:
+    portainer:
+        image: portainer/portainer-ce
+        container_name: portainer
+        ports:
+            - 8000:8000
+            - 9000:9000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /volume1/docker/portainer:/data
+        network_mode: synobridge
+        restart: unless-stopped
