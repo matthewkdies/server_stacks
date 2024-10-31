@@ -25,6 +25,7 @@
 
 # -----------------------------------------------------------------------------------
 
+# TODO: Figure out the reverse proxy for this
 services:
   home_assistant:
     image: ghcr.io/home-assistant/home-assistant:stable
@@ -36,6 +37,7 @@ services:
     volumes:
       - /volume1/docker/home-assistant/config:/config
       - /run/dbus:/run/dbus:ro
+      - /usr/syno/etc/certificate/_archive/ZMki6m:/etc/letsencrypt:ro
     network_mode: synobridge
     restart: unless-stopped
     # this is recommended by the docs, but I don't care
