@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 # Home Assistant is an open source home automation tool. I'm not exactly sure how I'm
 # going to use it, but I think I'll probably find some interesting ways. Mostly, I'm 
 # future-proofing; when I get a permanent place, I want to slowly add things to make 
@@ -6,7 +6,24 @@
 #  - https://www.home-assistant.io/
 #  - https://www.home-assistant.io/installation/alternative/#docker-compose
 #  - https://github.com/actualbudget/actual-server/blob/master/docker-compose.yml
-# -------------------------------------------------------------------------------------
+# 
+# Regarding integrations, I know of a few that I want to start with:
+#  - Google Home: As much as I hate my Google Home, we'd use it if we had this.
+#  - Roku: Would love the ability to put things on using the Google Home.
+#  - Lights: Eventually, will get smart + color controlled bulbs.
+#  - ECOVACS: My stupid robot vacuum might be cool to use with the app.
+# 
+# Potential future integrations:
+#  - Heat/air conditioning: Controlling the thermostat would be killer!
+#  - Wall-mounted tablets: Score an old iPad and use it for home control, I think so.
+#  - Cameras: Will eventually get cameras for the outside of our home.
+#  - Solar/power metrics: I want solar panels *for sure*.
+#  - Water metrics: Tracking this stuff might be neat, who knows.
+# 
+# And here's a potentially helpful link with others' thoughts on integrations:
+#  - https://www.reddit.com/r/homeassistant/comments/k3fntu/whats_the_killer_app/
+
+# -----------------------------------------------------------------------------------
 
 services:
   home_assistant:
