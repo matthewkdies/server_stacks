@@ -1,0 +1,26 @@
+# -------------------------------------------------------------------------------------
+# Home Assistant is an open source home automation tool. I'm not exactly sure how I'm
+# going to use it, but I think I'll probably find some interesting ways. Mostly, I'm 
+# future-proofing; when I get a permanent place, I want to slowly add things to make 
+# a privacy-focused smart home. I figure learning how to do it now will help later on.
+#  - https://www.home-assistant.io/
+#  - https://www.home-assistant.io/installation/alternative/#docker-compose
+#  - https://github.com/actualbudget/actual-server/blob/master/docker-compose.yml
+# -------------------------------------------------------------------------------------
+
+services:
+  home_assistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: home_assistant
+    environment:
+      - TZ=America/New_York
+    ports:
+      - 8123:8123
+    volumes:
+      - /volume1/docker/home-assistant/config:/config
+      - /run/dbus:/run/dbus:ro
+    network_mode: synobridge
+    restart: unless-stopped
+    # this is recommended by the docs, but I don't care
+    # I want to try without it. Why use containers if privileged is needed?
+    # privileged: true
