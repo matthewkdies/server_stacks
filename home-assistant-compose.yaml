@@ -34,6 +34,12 @@ services:
       - TZ=America/New_York
     ports:
       - 8123:8123
+    mem_limit: 8g
+    cpu_shares: 768
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: curl -f http://localhost:8123/ || exit 1
     volumes:
       - /volume1/docker/home-assistant/config:/config
       - /run/dbus:/run/dbus:ro
