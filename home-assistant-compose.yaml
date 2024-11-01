@@ -45,6 +45,3 @@ services:
       - /usr/syno/etc/certificate/_archive/ZMki6m:/etc/letsencrypt:ro
     network_mode: synobridge
     restart: unless-stopped
-    # this is recommended by the docs, but I don't care
-    # I want to try without it. Why use containers if privileged is needed?
-    # privileged: true
