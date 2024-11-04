@@ -1,0 +1,17 @@
+# ------------------------------------------------------------------------
+# Homarr - A simple, yet powerful dashboard for your server.
+# - https://homarr.dev/docs/getting-started/installation#-portainer-stacks
+# ------------------------------------------------------------------------
+services:
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - /volume1/docker/homarr/configs:/app/data/configs
+      - /volume1/docker/homarr/icons:/app/public/icons
+      - /volume1/docker/homarr/data:/data
+    network_mode: synobridge
+    ports:
+      - 7575:7575
