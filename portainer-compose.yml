@@ -1,17 +1,20 @@
-# ------------------------------------------------------------------------
-# Homarr - A simple, yet powerful dashboard for your server.
-# - https://homarr.dev/docs/getting-started/installation#-portainer-stacks
-# ------------------------------------------------------------------------
+# ----------------------------------------------------------
+# Portainer is a web GUI for container management.
+# This compose file is used in Synology's Container Manager,
+# since Portainer can't be used to edit itself.
+# ----------------------------------------------------------
+
 services:
+  # use docker-socket-proxy for portainer's Docker access
   socket-proxy:
-    container_name: homarr-socket-proxy
+    container_name: portainer-socket-proxy
     image: tecnativa/docker-socket-proxy
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
     networks: # uses the socket proxy network
       socket_proxy:
-        ipv4_address: 192.168.91.252 # manually specify IP address in subnet
+        ipv4_address: 192.168.91.254 # manually specify IP address in subnet
     privileged: true
     ports:
       - "127.0.0.1:2375:2375" # NEVER expose this to the internet with port forwarding!
@@ -36,28 +39,26 @@ services:
       - CONTAINERS=1
       - DISTRIBUTION=0
       - EXEC=0
-      - IMAGES=0
-      - INFO=0
-      - NETWORKS=0
+      - IMAGES=1
+      - INFO=1
+      - NETWORKS=1
       - NODES=0
       - PLUGINS=0
-      - SERVICES=0
+      - SERVICES=1
       - SESSION=0
       - SWARM=0
       - SYSTEM=0
-      - TASKS=0
-      - VOLUMES=0
+      - TASKS=1
+      - VOLUMES=1
 
-  homarr:
-    container_name: homarr
-    image: ghcr.io/ajnart/homarr:latest
-    restart: unless-stopped
-    volumes:
-      - /volume1/docker/homarr/configs:/app/data/configs
-      - /volume1/docker/homarr/icons:/app/public/icons
-      - /volume1/docker/homarr/data:/data
-    networks:
-      - socket_proxy
-      - synobridge
-    ports:
-      - 7575:7575
+    portainer:
+      image: portainer/portainer-ce
+      container_name: portainer
+      ports:
+        - 8000:8000
+        - 9000:9000
+        - /volume1/docker/portainer:/data
+      networks:
+        - socket_proxy
+        - synobridge
+      restart: unless-stopped
