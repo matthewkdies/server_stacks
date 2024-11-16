@@ -1,19 +1,19 @@
 # -------------------------------------------------------------------------
 # docker-socket-proxy lets you set permissions such that any container that
 # needs to use the docker socket doesn't have too much power. A container
-# that has unrestricted docker socket access poses a security risk. For 
+# that has unrestricted docker socket access poses a security risk. For
 # example, Watchtower, Portainer, Traefik, and Homarr all use the docker
 # socket.
-# 
+#
 # docker-socket-proxy Links:
 # - https://www.smarthomebeginner.com/docker-media-server-2024/#1_Socket_Proxy_-_Secure_Proxy_for_the_Docker_Socket
 # - https://github.com/anandslab/docker-traefik/blob/master/compose/dns/socket-proxy.yml
 # - https://github.com/Tecnativa/docker-socket-proxy
 
 # The synobridge network is used for freeing up ports and network
-# isolation. Basically all web UIs are on this network, with Plex being 
+# isolation. Basically all web UIs are on this network, with Plex being
 # a notable exception.
-# 
+#
 # synobridge Link:
 # - https://drfrankenstein.co.uk/step-3-setting-up-a-docker-bridge-network-in-container-manager/
 # -------------------------------------------------------------------------
@@ -30,12 +30,12 @@ networks:
           gateway: "172.20.0.1"
         - ip_range: "172.20.0.0/16"
 
-# define a custom network that all docker socket requests are routed through
-# this will have a hard-coded subnet of 192.168.91.0/24
   socket_proxy:
-    # this is t
+    # a custom network that all docker socket requests are routed through
     name: socket_proxy
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.91.0/24
+        - subnet: "172.21.0.0/16"
+          gateway: "172.21.0.1"
+        - ip_range: "172.21.0.0/16"

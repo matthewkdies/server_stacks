@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
 # This should not be employed as a single container, but rather as
-# containers inside of existent stacks. It just exists here to 
+# containers inside of existent stacks. It just exists here to
 # serve as an example container and how it can be added to a stack.
 # -----------------------------------------------------------------
 
@@ -11,9 +11,9 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
-    networks:  # uses the socket proxy network
+    networks: # uses the socket proxy network
       socket_proxy:
-        ipv4_address: 192.168.91.254 # CHANGE ME: manually specify IP address in subnet
+        ipv4_address: 172.21.0.254 # CHANGE ME: manually specify IP address in subnet
     privileged: true
     ports:
       - "127.0.0.1:2375:2375" # NEVER expose this to the internet with port forwarding!

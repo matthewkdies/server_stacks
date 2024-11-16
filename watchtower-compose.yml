@@ -13,7 +13,7 @@ services:
     restart: unless-stopped
     networks: # uses the socket proxy network
       socket_proxy:
-        ipv4_address: 192.168.91.253 # manually specify IP address in subnet
+        ipv4_address: 172.21.0.253 # manually specify IP address in subnet
     privileged: true
     ports:
       - "127.0.0.1:2375:2375" # NEVER expose this to the internet with port forwarding!
