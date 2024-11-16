@@ -70,4 +70,11 @@ services:
     networks:
       - socket_proxy
       - synobridge
+    command: -H tcp://socket-proxy:2375
     restart: unless-stopped
+
+networks:
+  socket_proxy:
+    external: true
+  synobridge:
+    external: true
