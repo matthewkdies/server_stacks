@@ -3,51 +3,6 @@
 # - https://homarr.dev/docs/getting-started/installation#-portainer-stacks
 # ------------------------------------------------------------------------
 services:
-  socket-proxy:
-    container_name: homarr-socket-proxy
-    image: tecnativa/docker-socket-proxy
-    security_opt:
-      - no-new-privileges:true
-    restart: unless-stopped
-    networks: # uses the socket proxy network
-      socket_proxy:
-        ipv4_address: 192.168.91.252 # manually specify IP address in subnet
-    privileged: true
-    ports:
-      - "127.0.0.1:2375:2375" # NEVER expose this to the internet with port forwarding!
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - LOG_LEVEL=info
-      ## Variables match the URL prefix (i.e. AUTH blocks access to /auth/* parts of the API, etc.).
-      ## Granted by Default
-      - EVENTS=1
-      - PING=1
-      - VERSION=1
-      ## Revoked by Default
-      # Security critical
-      - AUTH=0
-      - SECRETS=0
-      - POST=0
-      # Not always needed
-      - BUILD=0
-      - COMMIT=0
-      - CONFIGS=0
-      - CONTAINERS=1
-      - DISTRIBUTION=0
-      - EXEC=0
-      - IMAGES=0
-      - INFO=0
-      - NETWORKS=0
-      - NODES=0
-      - PLUGINS=0
-      - SERVICES=0
-      - SESSION=0
-      - SWARM=0
-      - SYSTEM=0
-      - TASKS=0
-      - VOLUMES=0
-
   homarr:
     container_name: homarr
     image: ghcr.io/ajnart/homarr:latest
@@ -57,7 +12,10 @@ services:
       - /volume1/docker/homarr/icons:/app/public/icons
       - /volume1/docker/homarr/data:/data
     networks:
-      - socket_proxy
       - synobridge
     ports:
       - 7575:7575
+
+networks:
+  synobridge:
+    external: true
