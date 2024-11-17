@@ -9,6 +9,10 @@
 #  - Runs on host network: DSM reserves the DLNA ports Plex requires for DLNA
 # ---------------------------------------------------------------------------------
 
+secrets:
+  plex-claim-token:
+    file: /volume1/docker/secrets/plex_claim_token
+
 services:
   plex:
     image: linuxserver/plex:latest
@@ -20,7 +24,9 @@ services:
       - TZ=America/New_York
       - UMASK=022
       - VERSION=latest
-      - PLEX_CLAIM=${PLEX_CLAIM_TOKEN}  # retrieved from Plex to verify the Plex Pass
+      - FILE__PLEX_CLAIM=/run/secrets/plex-claim-token  # retrieved from Plex to verify the Plex Pass
+    secrets:
+      - plex-claim-token
     healthcheck:
       test: curl --connect-timeout 15 --silent --show-error --fail http://localhost:32400/identity
       interval: 1m00s
