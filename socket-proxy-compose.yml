@@ -21,7 +21,7 @@ services:
       - <name>_socket_proxy
     privileged: true
     ports:
-      - <TODO>:2375 # NEVER expose this to the internet with port forwarding!
+      - <TODO>:2375 # after setting this, be sure to add it to the firewall allow/deny rules
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:

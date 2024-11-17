@@ -39,7 +39,7 @@ networks:
     ipam:
       config:
         # replace the <TODO> with an iteration within the subnet
-        # after doing that, add it to the firewall whitelist rules
+        # after doing that, add it to the firewall whitelist rule
         - subnet: "172.<TODO>.0.0/16"
           gateway: "172.<TODO>.0.1"
           ip_range: "172.<TODO>.0.0/16"
