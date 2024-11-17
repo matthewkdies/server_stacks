@@ -3,6 +3,10 @@
 # even itself. It's configured to run once daily at 3AM here.
 # --------------------------------------------------------------------------
 
+# quick network info:
+# - subnet: 172.22.0.0/24
+# - port: 2375
+
 services:
   # use docker-socket-proxy for watchtower's Docker access
   watchtower-socket-proxy:
@@ -12,10 +16,11 @@ services:
       - no-new-privileges:true
     restart: unless-stopped
     networks: # uses the socket proxy network
-      - watchtower_socket_network
+      watchtower_socket_network:
+        ipv4_address: 172.22.0.10  # assign a static IP for firewall ease
     privileged: true
     ports:
-      - 2375:2375 # NEVER expose this to the internet with port forwarding!
+      - 2375:2375
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
@@ -47,7 +52,8 @@ services:
       - WATCHTOWER_NOTIFICATION_EMAIL_DELAY=30
       - WATCHTOWER_NOTIFICATIONS=email
     networks:
-      - watchtower_socket_network
+      watchtower_socket_network:
+        ipv4_address: 172.22.0.11  # assign a static IP for firewall ease
     restart: unless-stopped
 
 networks:
@@ -57,6 +63,6 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: "172.22.0.0/16"
+        - subnet: "172.22.0.0/24"
           gateway: "172.22.0.1"
-          ip_range: "172.22.0.0/16"
+          ip_range: "172.22.0.0/24"
