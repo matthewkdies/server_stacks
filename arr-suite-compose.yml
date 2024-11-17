@@ -26,6 +26,12 @@
 #     `WIREGUARD_PRIVATE_KEY` variables, here's a comment on how to do so
 # ----------------------------------------------------------------------------------------
 
+secrets:
+  wireguard-private-key:
+    file: /volume1/docker/secrets/wireguard_private_key
+  wireguard-addresses:
+    file: /volume1/docker/secrets/wireguard_addresses
+
 services:
   # tv show monitoring + management
   sonarr:
@@ -250,13 +256,16 @@ services:
       - 8090:8090/tcp # port for qbittorrent
     volumes:
       - /volume1/docker/gluetun:/gluetun
+    secrets:
+      - wireguard-private-key
+      - wireguard-addresses
     environment:
       - PUID=${UID}
       - PGID=${GID}
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - WIREGUARD_PRIVATE_KEY_SECRETFILE=/run/secrets/wireguard-private-key
+      - WIREGUARD_ADDRESSES_SECRETFILE=/run/secrets/wireguard-addresses
       - SERVER_CITIES=${SERVER_CITIES}
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
       - TZ=America/New_York
