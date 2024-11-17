@@ -2,23 +2,28 @@
 # This should not be employed as a single container, but rather as
 # containers inside of existent stacks. It just exists here to
 # serve as an example container and how it can be added to a stack.
+#
+# When implementing this, replace `<name>` with the container name.
+# The port will also need modified since one port can't be occupied
+# by multiple containers. Finally, modify the `<TODO>` in the 
+# network specs to iterate on that as well. As stated there, allow
+# it in the firewall as well to ensure it works properly.
 # -----------------------------------------------------------------
 
 services:
-  socket-proxy:
-    container_name: <container_name>-socket-proxy
+  <name>-socket-proxy:
+    container_name: <name>-socket-proxy
     image: tecnativa/docker-socket-proxy
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
     networks: # uses the socket proxy network
-      socket_proxy:
-        ipv4_address: 172.21.0.254 # CHANGE ME: manually specify IP address in subnet
+      - <name>_socket_proxy
     privileged: true
     ports:
-      - "127.0.0.1:2375:2375" # NEVER expose this to the internet with port forwarding!
+      - <TODO>:2375 # NEVER expose this to the internet with port forwarding!
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - LOG_LEVEL=info
       ## These should all be specified according to the needs. Some values are displayed below for examples.
@@ -51,8 +56,14 @@ services:
       - TASKS=1 # Portainer
       - VOLUMES=1 # Portainer
 
-networks:
-  socket_proxy:
-    external: true
-  # synobridge:
-  #   external: true
+  <name>_socket_proxy:
+    # a custom network that all docker socket requests are routed through
+    name: <name>_socket_proxy
+    driver: bridge
+    ipam:
+      config:
+        # replace the <TODO> with an iteration within the subnet
+        # after doing that, add it to the firewall whitelist rules
+        - subnet: "172.<TODO>.0.0/16"
+          gateway: "172.<TODO>.0.1"
+          ip_range: "172.<TODO>.0.0/16"
