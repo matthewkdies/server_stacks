@@ -1,0 +1,91 @@
+# -------------------------------------------------------------------
+# Authelia configuration. This is where the app itself is configured.
+# -------------------------------------------------------------------
+
+server:
+  address: tcp://0.0.0.0:9091/
+  buffers:
+    read: 4096
+    write: 4096
+  endpoints:
+    enable_pprof: false
+    enable_expvars: false
+  disable_healthcheck: false
+  tls:
+    key: ""
+    certificate: ""
+
+# https://www.authelia.com/configuration/miscellaneous/logging/
+log:
+  level: info
+  format: text
+  file_path: /config/authelia.log
+  keep_stdout: true
+
+# https://www.authelia.com/configuration/second-factor/time-based-one-time-password/
+totp:
+  issuer: mattdies.synology.me
+  period: 30
+  skew: 1
+
+# https://www.authelia.com/reference/guides/passwords/
+authentication_backend:
+  password_reset:
+    disable: false
+  refresh_interval: 5m
+  file:
+    path: /config/users.yml
+    password:
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 256 # blocks this much of the RAM
+
+# https://www.authelia.com/overview/authorization/access-control/
+access_control:
+  default_policy: deny
+  rules:
+    # uncomment the below if local auth bypass is desired
+    # - domain:
+    #     - "*.mattdies.synology.me"
+    #     - "mattdies.synology.me"
+    #   policy: bypass
+    #   networks: # bypass authentication for local networks
+    #     - 10.0.0.0/8
+    #     - 192.168.0.0/16
+    #     - 172.16.0.0/12
+    - domain:
+        - "*.mattdies.synology.me"
+        - "mattdies.synology.me"
+      policy: two_factor
+
+# https://www.authelia.com/configuration/session/introduction/
+session:
+  name: authelia_session
+  same_site: lax
+  expiration: 7h
+  inactivity: 5m
+  remember_me: 1M
+  cookies:
+    - domain: 'mattdies.synology.me'
+      authelia_url: 'https://authelia.mattdies.synology.me'
+
+# https://www.authelia.com/configuration/security/regulation/
+regulation:
+  max_retries: 3
+  find_time: 10m
+  ban_time: 12h
+  
+# https://www.authelia.com/configuration/storage/introduction/
+storage:
+  local:
+   path: /config/db.sqlite3
+
+# https://www.authelia.com/configuration/notifications/introduction/
+notifier:
+  disable_startup_check: false
+  smtp:
+    address: submission://smtp.gmail.com:587
+    # Password is using a secret: https://www.authelia.com/configuration/methods/secrets/
+    sender: 'authelia-noreply@mattdies.synology.me'

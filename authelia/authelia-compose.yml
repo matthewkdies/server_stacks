@@ -1,0 +1,53 @@
+# ------------------------------------------------------------------------
+# Authelia allows for local Single Sign-On (SSO) in supporting containers.
+# It's an open-source, self-hosted way to vastly improve the security of
+# other containers, especially those that need to/should have logins. Plus
+# it pairs really well with traefik, which I plan to add on in the future.
+#
+# Helpful links:
+#  - https://www.smarthomebeginner.com/authelia-docker-compose-guide-2024-v2/
+#  - https://www.authelia.com/configuration/prologue/introduction/ 
+# ------------------------------------------------------------------------
+
+# we're going to use secrets, to improve on the security. security by design!
+secrets:
+  authelia_jwt_secret:
+    file: /volume1/docker/secrets/authelia_jwt_secret
+  authelia_session_secret:
+    file: /volume1/docker/secrets/authelia_session_secret
+  authelia_storage_encryption_key:
+    file: /volume1/docker/secrets/authelia_storage_encryption_key
+  authelia_notifier_smtp_password:
+    file: /volume1/docker/secrets/authelia_notifier_smtp_password
+
+services:
+  authelia:
+    container_name: authelia
+    image: authelia/authelia:4.38.8
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    networks:
+      - synobridge
+    ports: # this allows us to do our own port forwarding
+      - 9091:9091 # however, it will be unnecessary if we use traefik instead
+    volumes:
+      - /volume1/docker/authelia:/config
+    environment:
+      - TZ=America/New_York
+      - PUID=${UID}
+      - PGID=${GID}
+      - AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE=/run/secrets/authelia_jwt_secret
+      - AUTHELIA_SESSION_SECRET_FILE=/run/secrets/authelia_session_secret
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE=/run/secrets/authelia_storage_encryption_key
+      - AUTHELIA_NOTIFIER_SMTP_USERNAME=${GMAIL} # SMTP
+      - AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE=/run/secrets/authelia_notifier_smtp_password # SMTP
+    secrets:
+      - authelia_jwt_secret
+      - authelia_storage_encryption_key
+      - authelia_session_secret
+      - authelia_notifier_smtp_password
+
+networks:
+  synobridge:
+    external: true
