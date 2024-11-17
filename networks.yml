@@ -28,14 +28,18 @@ networks:
       config:
         - subnet: "172.20.0.0/16"
           gateway: "172.20.0.1"
-        - ip_range: "172.20.0.0/16"
+          ip_range: "172.20.0.0/16"
 
-  socket_proxy:
+  <name>_socket_proxy:
     # a custom network that all docker socket requests are routed through
-    name: socket_proxy
+    # one of these is created for each instance of a container needing docker
+    # for more information, check out `socket_proxy_compose.yaml`
+    name: <name>_socket_proxy
     driver: bridge
     ipam:
       config:
-        - subnet: "172.21.0.0/16"
-          gateway: "172.21.0.1"
-        - ip_range: "172.21.0.0/16"
+        # replace the <TODO> with an iteration within the subnet
+        # after doing that, add it to the firewall whitelist rules
+        - subnet: "172.<TODO>.0.0/16"
+          gateway: "172.<TODO>.0.1"
+          ip_range: "172.<TODO>.0.0/16"
