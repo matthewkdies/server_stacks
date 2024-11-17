@@ -7,6 +7,10 @@
 # incorrect blockers then Pi-Hole will have to be temporarily disabled or whitelisted.
 # ------------------------------------------------------------------------------------
 
+secrets:
+  pihole-webpassword:
+    file: /volume1/docker/secrets/pihole_webpassword
+
 services:
   pihole:
     image: pihole/pihole:latest
@@ -16,13 +20,15 @@ services:
       - CAP_NET_RAW
       - CAP_NET_BIND_SERVICE
       - CAP_CHOWN
+    secrets:
+      - pihole-webpassword
     environment:
       - PIHOLE_UID=${UID}
       - PIHOLE_GID=${GID}
       - WEB_UID=${UID}
       - WEB_GID=${GID}
       - TZ=America/New_York
-      - WEBPASSWORD=${PIHOLE_WEB_PASSWORD}
+      - WEBPASSWORD_FILE=/run/secrets/pihole-webpassword
       - DNSMASQ_LISTENING=local
       - WEB_PORT=8000
       - DNSMASQ_USER=pihole
