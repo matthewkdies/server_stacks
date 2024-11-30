@@ -33,6 +33,8 @@ services:
       - SERVICES=1
       - TASKS=1
       - VOLUMES=1
+    labels:
+      - "com.centurylinklabs.watchtower.monitor-only=true"
     restart: unless-stopped
 
   portainer:

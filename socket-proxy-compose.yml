@@ -55,6 +55,8 @@ services:
       - SYSTEM=0
       - TASKS=1 # Portainer
       - VOLUMES=1 # Portainer
+    labels:
+      - "com.centurylinklabs.watchtower.monitor-only=true"
 
   <name>_socket_proxy:
     # a custom network that all docker socket requests are routed through

@@ -30,6 +30,8 @@ services:
       - IMAGES=1
       - NETWORKS=1
       - VOLUMES=1
+    labels:
+      - "com.centurylinklabs.watchtower.monitor-only=true"
 
   watchtower:
     image: containrrr/watchtower:latest
